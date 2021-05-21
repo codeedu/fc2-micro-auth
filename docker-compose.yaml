@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+  app:
+    image: codeeducation/keycloak:11.0.2-fix-translate
+    container_name: micro-auth-app
+    volumes:
+      - ./frontend/build/catalog-admin:/opt/jboss/keycloak/themes/catalog-admin
+      - ./keycloak/config/standalone-ha.xml:/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+      - ./keycloak/test-realm-export.json:/tmp/test-realm-export.json
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/tmp/test-realm-export.json
+      - DB_ADDR=db
+      - DB_VENDOR=mysql
+      - DB_DATABASE=micro_auth
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    networks: 
+      default:
+        aliases: 
+          - app.test
+
+  db:
+    build: ./.docker/mysql
+    container_name: micro-auth-db
+    restart: always
+    tty: true
+    volumes:
+      - ./.docker/dbdata:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=micro_auth
+      - MYSQL_ROOT_PASSWORD=root
+    networks: 
+        - default
+
+  frontend:
+    build: ./frontend
+    entrypoint: ./.docker/entrypoint.sh
+    container_name: micro-auth-frontend
+    volumes:
+      - ./frontend:/home/node/app
+    networks: 
+      - default
+
+  test:
+    build: ./tests
+    entrypoint: ./.docker/entrypoint.sh
+    container_name: micro-auth-test
+    volumes:
+      - ./tests:/home/node/app
+    networks: 
+      - default
+
+  selenium:
+    image: selenium/standalone-chrome:88.0.4324.150-chromedriver-88.0.4324.96
+    networks: 
+      - default
+
+networks: 
+  default:
+    driver: bridge

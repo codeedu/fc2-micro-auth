@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: micro-auth-prod-app
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=h2
+    ports:
+      - 8080:8080
+
+  test:
+    build:
+      context: ./tests
+      args:
+        - UID=${UID}
+    entrypoint: ./.docker/entrypoint.sh
+    container_name: micro-auth-test
+    volumes:
+      - ./tests:/home/node/app
+    networks:
+      - default
+
+  selenium:
+    image: selenium/standalone-chrome:88.0.4324.150-chromedriver-88.0.4324.96
+    networks:
+      - default
+
+  dockerize:
+    image: jwilder/dockerize
+    entrypoint: dockerize -wait tcp://app.test:8080 -timeout 200s
+    networks:
+      - default
