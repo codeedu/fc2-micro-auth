@@ -21,7 +21,7 @@
                 passwordLabel: "${msg("password")}",
                 enabledRememberMe: ${realm.rememberMe?string},
                 <#if login.rememberMe??>
-                    enabledLoginRememberMe: ${login.rememberMe?string}
+                    enabledLoginRememberMe: ${login.rememberMe?string},
                 </#if>
                 rememberMeLabel: "${msg("rememberMe")}",
                 resetPasswordAllowed: ${realm.resetPasswordAllowed?string},

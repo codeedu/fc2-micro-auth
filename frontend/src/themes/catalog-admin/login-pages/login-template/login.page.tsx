@@ -109,7 +109,8 @@ const LoginPage: React.FunctionComponent<LoginPageProps> = (props) => {
                   control={
                     <Checkbox
                       name="rememberMe"
-                      checked={enabledLoginRememberMe}
+                      defaultChecked={enabledLoginRememberMe}
+                      value="true"
                     />
                   }
                   label={rememberMeLabel}
